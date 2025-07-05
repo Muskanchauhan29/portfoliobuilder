@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import FormBuilderClient from "./FormBuilderClient";
 
 export default function FormBuilderPage() {
   const router = useRouter();
