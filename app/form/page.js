@@ -1,32 +1,25 @@
-"use server";
-
-import { cookies, headers } from 'next/headers';
-import jwt from 'jsonwebtoken';
-import { redirect } from 'next/navigation';
-import FormBuilderClient from './FormBuilderClient';
-
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
 import FormBuilderClient from "./FormBuilderClient";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function FormBuilderPage() {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedTemplate = searchParams.get("template") || "";
 
-  useEffect(() => {
-    if (status === "loading") return;
-    if (!session) {
-      router.replace("/login?redirect=/form");
-    }
-  }, [session, status, router]);
-
-  if (status === "loading" || !session) {
-    return <div className="min-h-screen flex items-center justify-center text-xl">Loading...</div>;
-  }
+  // --- Example: Add your state initialization here if needed ---
+  const [formData, setFormData] = useState({
+    personalInfo: { name: '', email: '', phone: '', location: '', role: '', summary: '', photo: '' },
+    projects: [],
+    skills: [],
+    education: [],
+    experience: [],
+    template: ''
+  });
+  const [cloudStatus, setCloudStatus] = useState('idle');
+  const [cloudId, setCloudId] = useState(null);
 
   // You can define your themes here or import as needed
   const themes = [
@@ -34,8 +27,6 @@ export default function FormBuilderPage() {
     { key: 'grid', label: 'Grid' },
     { key: 'minimal', label: 'Minimalist' },
   ];
-
-  return <FormBuilderClient themes={themes} selectedTemplate={selectedTemplate} />;
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -52,7 +43,6 @@ export default function FormBuilderPage() {
   const handleTemplateSelect = (key) => {
     setFormData(prev => ({ ...prev, template: key }));
   };
-
 
   const handleInputChange = (section, field, value) => {
     setFormData(prev => ({
