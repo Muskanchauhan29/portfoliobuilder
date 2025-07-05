@@ -1,7 +1,7 @@
 // NextAuth removed. This file is now empty.
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+
 import clientPromise from "@/lib/mongodb";
-import CredentialsProvider from "next-auth/providers/credentials";
+
 import bcrypt from "bcryptjs";
 
 const handler = NextAuth({
