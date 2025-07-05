@@ -1,0 +1,114 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* === Tailwind layers === */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === Custom global styles === */
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-sans: var(--font-inter);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* === Animations === */
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-gradient-x {
+  background-size: 200% 200%;
+  animation: gradient-x 15s ease infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* === Portfolio Animations === */
+
+@keyframes blob1 {
+  0%, 100% { transform: scale(1) translate(0, 0); }
+  33% { transform: scale(1.1) translate(20px, -10px); }
+  66% { transform: scale(0.95) translate(-10px, 20px); }
+}
+@keyframes blob2 {
+  0%, 100% { transform: scale(1) translate(0, 0); }
+  33% { transform: scale(1.08) translate(-15px, 15px); }
+  66% { transform: scale(0.97) translate(10px, -20px); }
+}
+.animate-blob1 { animation: blob1 18s infinite linear; }
+.animate-blob2 { animation: blob2 22s infinite linear; }
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+@keyframes fadeInUp {
+  to { opacity: 1; transform: none; }
+}
+.animate-fade-in {
+  opacity: 0;
+  animation: fadeIn 0.8s forwards;
+}
+.animate-fade-in-up {
+  opacity: 0;
+  transform: translateY(40px);
+  animation: fadeInUp 1s cubic-bezier(.23,1.04,.66,1) forwards;
+}
+.delay-100 { animation-delay: 0.15s !important; }
+.delay-200 { animation-delay: 0.3s !important; }
+.delay-300 { animation-delay: 0.45s !important; }
+
+@keyframes blob {
+  0%,100% { transform: scale(1) translate(0,0); }
+  33% { transform: scale(1.1) translate(30px, -20px); }
+  66% { transform: scale(0.95) translate(-20px, 40px); }
+}
+@keyframes blob2 {
+  0%,100% { transform: scale(1) translate(0,0); }
+  40% { transform: scale(1.08) translate(-40px, 25px); }
+  70% { transform: scale(0.92) translate(40px, -30px); }
+}
+.animate-blob {
+  animation: blob 18s ease-in-out infinite;
+}
+.animate-blob2 {
+  animation: blob2 22s ease-in-out infinite;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
