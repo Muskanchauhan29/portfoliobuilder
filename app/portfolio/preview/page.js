@@ -68,9 +68,7 @@ export default function PortfolioPreview() {
     </div>
   );
 
-          <h2 className="text-xl font-semibold mb-2">About Me</h2>
-          <p className="text-gray-700 whitespace-pre-line">{personalInfo.summary}</p>
-        </div>
+
         {projects.length > 0 && projects.some(p => p.title || p.description) && (
           <div className="mb-8">
             <h2 className="text-xl font-semibold mb-2">Projects</h2>
