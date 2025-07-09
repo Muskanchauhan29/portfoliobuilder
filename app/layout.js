@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import Image from 'next/image';
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { AuthProvider } from "@/components/AuthProvider";
@@ -22,7 +23,7 @@ export default function RootLayout({ children }) {
         {/* Beautiful background image */}
         <div className="fixed inset-0 -z-10">
   {/* Vibrant abstract background image */}
-  <img 
+  <Image width={100} height={100} 
     src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80" 
     alt="Vibrant abstract background" 
     className="w-full h-full object-cover object-center blur-xl scale-105 opacity-70 transition-all duration-700" 

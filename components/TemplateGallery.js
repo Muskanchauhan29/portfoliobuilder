@@ -13,7 +13,7 @@ export default function TemplateGallery({ selected, onSelect }) {
         >
           <div className="absolute inset-0 z-0 pointer-events-none">
             {/* Template background preview */}
-            {tpl.background}
+            <tpl.background />
           </div>
           <div className="relative z-10 flex-1 flex flex-col justify-end items-center pb-6 pt-12 px-4">
             {/* Template card preview (mini) */}

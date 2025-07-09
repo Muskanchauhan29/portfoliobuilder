@@ -1,122 +1,71 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { usePortfolioStore } from '@/store/portfolioStore';
 
 import { TEMPLATES } from '@/components/templates';
 
 const templateOptions = Object.entries(TEMPLATES).map(([key, val]) => ({ key, label: val.label }));
 
-export default function FormBuilderClient({ themes = templateOptions, selectedTemplate }) {
-  const { portfolio, setPortfolio, updatePortfolio, resetPortfolio } = usePortfolioStore();
-  // Always sync template from URL param if provided and different, after portfolio loads
-  useEffect(() => {
-    // Wait until portfolio is loaded from localStorage
-    if (selectedTemplate && portfolio && selectedTemplate !== portfolio.template) {
-      updatePortfolio('template', selectedTemplate);
-    }
-  }, [selectedTemplate, portfolio?.template]);
+export default function FormBuilderClient({ themes = templateOptions, selectedTemplate, portfolio, updatePortfolio, resetPortfolio }) {
+
   const router = useRouter();
-  // Always initialize formData from localStorage if present, else use default
-  const getInitialFormData = () => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('portfolioForm');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          // If template key exists, use saved data
-          if (parsed && parsed.template) return parsed;
-        } catch {}
-      }
+
+  // UI State
+  const [activeSection, setActiveSection] = useState('personal');
+
+  useEffect(() => {
+    const savedSection = localStorage.getItem('portfolioActiveSection');
+    if (savedSection) {
+      setActiveSection(savedSection);
     }
-    // Fallback to default
-    return {
-      template: selectedTemplate || themes[0]?.key || 'card',
-      personalInfo: {
-        name: '',
-        email: '',
-        phone: '',
-        location: '',
-        summary: '',
-        role: '',
-        photo: ''
-      },
-      projects: [{}],
-      skills: [''],
-      education: [{}],
-      experience: [{}]
-    };
-  };
-  const formData = portfolio; // for compatibility with existing code
-  // Restore activeSection from localStorage if present
-  const [activeSection, setActiveSection] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('portfolioActiveSection') || 'personal';
-    }
-    return 'personal';
-  });
+  }, []);
   const [message, setMessage] = useState('');
   const [portfolioLink, setPortfolioLink] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Remove this effect, as initialization is now handled in useState above
-  // useEffect(() => { ... }, []);
+  useEffect(() => {
+    localStorage.setItem('portfolioActiveSection', activeSection);
+  }, [activeSection]);
 
-  // Explicit reset handler
   const handleReset = () => {
     resetPortfolio();
     setMessage('Portfolio form has been reset.');
   };
 
-
-
-
-  // Save activeSection to localStorage on change
-  useEffect(() => {
-    localStorage.setItem('portfolioActiveSection', activeSection);
-  }, [activeSection]);
-
   // Handlers
   const handlePersonalChange = (e) => {
-    updatePortfolio('personalInfo', {
-      ...formData.personalInfo,
-      [e.target.name]: e.target.value,
-    });
+    updatePortfolio(['personalInfo', e.target.name], e.target.value);
   };
 
   const handleAdd = (section) => {
-    updatePortfolio(section, [...formData[section], {}]);
+    updatePortfolio(section, [...portfolio[section], {}]);
   };
 
   const handleRemove = (section, idx) => {
-    updatePortfolio(section, formData[section].filter((_, i) => i !== idx));
+    updatePortfolio(section, portfolio[section].filter((_, i) => i !== idx));
   };
 
   const handleSectionChange = (section, idx, e) => {
-    const updated = formData[section].map((item, i) =>
-      i === idx ? { ...item, [e.target.name]: e.target.value } : item
-    );
-    updatePortfolio(section, updated);
+    updatePortfolio([section, idx, e.target.name], e.target.value);
   };
 
   const handleSkillChange = (idx, value) => {
-    const updated = [...formData.skills];
-    updated[idx] = value;
-    updatePortfolio('skills', updated);
+    updatePortfolio(['skills', idx], value);
   };
 
   const handleAddSkill = () => {
-    updatePortfolio('skills', [...formData.skills, '']);
+    updatePortfolio('skills', [...portfolio.skills, '']);
   };
 
   const handleRemoveSkill = (idx) => {
-    updatePortfolio('skills', formData.skills.filter((_, i) => i !== idx));
+    updatePortfolio('skills', portfolio.skills.filter((_, i) => i !== idx));
   };
 
   const handleTemplateSelect = (key) => {
-    updatePortfolio('template', key);
+    updatePortfolio(['template'], key);
   };
 
   const handleSave = async (e) => {
@@ -125,12 +74,12 @@ export default function FormBuilderClient({ themes = templateOptions, selectedTe
     setError('');
     setMessage('');
     try {
-      localStorage.setItem('portfolioForm', JSON.stringify(formData));
+      localStorage.setItem('portfolioForm', JSON.stringify(portfolio));
       // Save to backend
       const res = await fetch('/api/portfolio', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(portfolio),
       });
       const data = await res.json();
       if (data.success && data.id) {
@@ -145,7 +94,6 @@ export default function FormBuilderClient({ themes = templateOptions, selectedTe
       setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-blue-50 to-green-50 py-12 px-2">
@@ -179,11 +127,11 @@ export default function FormBuilderClient({ themes = templateOptions, selectedTe
           {activeSection === 'personal' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins" name="name" placeholder="Name" value={formData.personalInfo.name} onChange={handlePersonalChange} />
-                <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins" name="email" placeholder="Email" value={formData.personalInfo.email} onChange={handlePersonalChange} />
-                <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins" name="phone" placeholder="Phone" value={formData.personalInfo.phone} onChange={handlePersonalChange} />
-                <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins" name="location" placeholder="Location" value={formData.personalInfo.location} onChange={handlePersonalChange} />
-                <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins" name="role" placeholder="Role (e.g. Frontend Developer)" value={formData.personalInfo.role} onChange={handlePersonalChange} />
+                <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins" name="name" placeholder="Name" value={portfolio.personalInfo.name || ''} onChange={handlePersonalChange} />
+                <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins" name="email" placeholder="Email" value={portfolio.personalInfo.email || ''} onChange={handlePersonalChange} />
+                <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins" name="phone" placeholder="Phone" value={portfolio.personalInfo.phone || ''} onChange={handlePersonalChange} />
+                <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins" name="location" placeholder="Location" value={portfolio.personalInfo.location || ''} onChange={handlePersonalChange} />
+                <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins" name="role" placeholder="Role (e.g. Frontend Developer)" value={portfolio.personalInfo.role || ''} onChange={handlePersonalChange} />
               </div>
               {/* Photo Upload */}
               <div className="flex flex-col md:flex-row items-center gap-4 mt-4">
@@ -197,27 +145,24 @@ export default function FormBuilderClient({ themes = templateOptions, selectedTe
                     if (file) {
                       const reader = new FileReader();
                       reader.onload = ev => {
-                        setFormData(f => ({
-                          ...f,
-                          personalInfo: { ...f.personalInfo, photo: ev.target.result }
-                        }));
+                        updatePortfolio(['personalInfo', 'photo'], ev.target.result);
                       };
                       reader.readAsDataURL(file);
                     }
                   }}
                 />
-                {formData.personalInfo.photo && (
-                  <img src={formData.personalInfo.photo} alt="Preview" className="w-20 h-20 rounded-full object-cover shadow border" />
+                {portfolio.personalInfo.photo && (
+                  <Image src={portfolio.personalInfo.photo} alt="Preview" width={80} height={80} className="w-20 h-20 rounded-full object-cover shadow border" />
                 )}
               </div>
-              <textarea className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins mt-4" name="summary" placeholder="Summary" value={formData.personalInfo.summary} onChange={handlePersonalChange} />
+              <textarea className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins mt-4" name="summary" placeholder="Summary" value={portfolio.personalInfo.summary || ''} onChange={handlePersonalChange} />
             </motion.div>
           )}
 
           {/* Projects */}
           {activeSection === 'projects' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {formData.projects.map((project, idx) => (
+              {portfolio.projects.map((project, idx) => (
                 <div key={idx} className="mb-4 p-4 rounded bg-gray-50">
                   <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins mb-2" name="title" placeholder="Project Title" value={project.title || ''} onChange={e => handleSectionChange('projects', idx, e)} />
                   <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins mb-2" name="link" placeholder="Project Link" value={project.link || ''} onChange={e => handleSectionChange('projects', idx, e)} />
@@ -232,7 +177,7 @@ export default function FormBuilderClient({ themes = templateOptions, selectedTe
           {/* Skills */}
           {activeSection === 'skills' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {formData.skills.map((skill, idx) => (
+              {portfolio.skills.map((skill, idx) => (
                 <div key={idx} className="flex gap-2 mb-2">
                   <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins flex-1" placeholder="Skill" value={skill} onChange={e => handleSkillChange(idx, e.target.value)} />
                   <button type="button" className="text-red-500 text-sm" onClick={() => handleRemoveSkill(idx)}>Remove</button>
@@ -245,7 +190,7 @@ export default function FormBuilderClient({ themes = templateOptions, selectedTe
           {/* Education */}
           {activeSection === 'education' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {formData.education.map((edu, idx) => (
+              {portfolio.education.map((edu, idx) => (
                 <div key={idx} className="mb-4 p-4 rounded bg-gray-50">
                   <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins mb-2" name="school" placeholder="School/College" value={edu.school || ''} onChange={e => handleSectionChange('education', idx, e)} />
                   <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins mb-2" name="degree" placeholder="Degree" value={edu.degree || ''} onChange={e => handleSectionChange('education', idx, e)} />
@@ -260,7 +205,7 @@ export default function FormBuilderClient({ themes = templateOptions, selectedTe
           {/* Experience */}
           {activeSection === 'experience' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {formData.experience.map((exp, idx) => (
+              {portfolio.experience.map((exp, idx) => (
                 <div key={idx} className="mb-4 p-4 rounded bg-gray-50">
                   <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins mb-2" name="company" placeholder="Company" value={exp.company || ''} onChange={e => handleSectionChange('experience', idx, e)} />
                   <input className="input-modern bg-white text-gray-900 placeholder-gray-400 font-poppins mb-2" name="role" placeholder="Role" value={exp.role || ''} onChange={e => handleSectionChange('experience', idx, e)} />
@@ -295,7 +240,11 @@ export default function FormBuilderClient({ themes = templateOptions, selectedTe
         <div className="flex justify-end mt-8">
           <button
             type="button"
-            onClick={handleReset}
+            onClick={() => {
+              if (window.confirm('Are you sure you want to reset the form? All unsaved changes will be lost.')) {
+                handleReset();
+              }
+            }}
             className="px-6 py-2 rounded-full bg-gradient-to-r from-red-400 to-pink-500 text-white font-semibold shadow hover:scale-105 transition-transform"
           >
             Reset Form
@@ -305,6 +254,7 @@ export default function FormBuilderClient({ themes = templateOptions, selectedTe
     </div>
   );
 }
+
 
 // Tailwind utility classes
 // .input-modern: px-4 py-2 rounded-xl border border-gray-300 w-full bg-white text-gray-900 placeholder-gray-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all text-base font-medium font-poppins

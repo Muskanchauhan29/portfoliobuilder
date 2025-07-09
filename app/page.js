@@ -1,5 +1,9 @@
 'use client';
 
+import React, { useState } from "react";
+import { useRouter } from 'next/navigation';
+import TemplateGallery from '@/components/TemplateGallery';
+import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FaLinkedin } from 'react-icons/fa';
@@ -101,48 +105,27 @@ const Features = () => (
 );
 
 // Templates Section
-const Templates = () => (
+const Templates = () => {
+  const router = useRouter();
+  const [selectedTemplate, setSelectedTemplate] = useState('card');
+
+  const handleSelectTemplate = (templateKey) => {
+    setSelectedTemplate(templateKey);
+    router.push(`/live-preview?template=${templateKey}`);
+  };
+
+  return (
   <section className="py-10 md:py-16">
     <div className="container mx-auto px-4">
       <div className="bg-white/40 backdrop-blur-md rounded-3xl shadow-xl p-8 md:p-12">
         <h2 className="text-4xl font-bold mb-4 text-center text-gray-900">Stunning Templates</h2>
         <p className="text-gray-700 mb-12 max-w-2xl mx-auto text-center">Get started with a professionally designed template. Each one is fully customizable.</p>
-        <motion.div 
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-          initial="offscreen"
-          whileInView="onscreen"
-          viewport={{ once: true, amount: 0.3 }}
-          variants={containerVariants}
-        >
-          {/* Template 1 */}
-          <motion.div variants={cardVariants} className="bg-white/60 rounded-2xl shadow-lg overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
-            <img src="https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Modern Template" className="w-full h-48 object-cover"/>
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Modern Portfolio</h3>
-              <p className="text-gray-700">A sleek and modern design perfect for photographers and designers.</p>
-            </div>
-          </motion.div>
-          {/* Template 2 */}
-          <motion.div variants={cardVariants} className="bg-white/60 rounded-2xl shadow-lg overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
-            <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Minimalist Template" className="w-full h-48 object-cover"/>
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Minimalist CV</h3>
-              <p className="text-gray-700">A clean and simple layout to showcase your resume and skills.</p>
-            </div>
-          </motion.div>
-          {/* Template 3 */}
-          <motion.div variants={cardVariants} className="bg-white/60 rounded-2xl shadow-lg overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
-            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Creative Template" className="w-full h-48 object-cover"/>
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">Creative Showcase</h3>
-              <p className="text-gray-700">A vibrant and creative design for artists and illustrators.</p>
-            </div>
-          </motion.div>
-        </motion.div>
+        <TemplateGallery selected={selectedTemplate} onSelect={handleSelectTemplate} />
       </div>
     </div>
   </section>
-);
+  );
+}
 
 // How It Works Section
 const HowItWorks = () => (

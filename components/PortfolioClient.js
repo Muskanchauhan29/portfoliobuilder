@@ -7,6 +7,7 @@ const FadeInWhenVisible = dynamic(() => import("@/components/FadeInWhenVisible")
 import TypewriterText from '@/components/TypewriterText';
 import { motion } from 'framer-motion';
 import ContactForm from '@/components/ContactForm';
+import Image from 'next/image';
 
 export default function PortfolioClient({ personalInfo = {}, projects = [], skills = [], education = [], experience = [], ownerId }) {
   return (
@@ -55,13 +56,15 @@ export default function PortfolioClient({ personalInfo = {}, projects = [], skil
       <section className="relative z-10 flex flex-col items-center justify-center min-h-[60vh] pt-10 pb-16 text-center">
         {/* Profile Photo */}
         {personalInfo.photo && (
-          <div className="relative mb-6 animate-fade-in-up" style={{animationDelay:'0.1s'}}>
+          <div className="relative mb-6 animate-fade-in-up" style={{animationDelay: '0.1s'}}>
             <span className="absolute -inset-3 rounded-full bg-gradient-to-tr from-purple-400 via-indigo-300 to-pink-300 blur-xl opacity-60 animate-blob2"></span>
-            <img
+            <Image
               src={personalInfo.photo}
               alt="Profile"
+              width={192}
+              height={192}
               className="w-40 h-40 md:w-48 md:h-48 rounded-full object-cover shadow-2xl border-4 border-white ring-4 ring-purple-300/60 hover:ring-indigo-400 transition-all duration-700 z-10 relative animate-fade-in"
-              style={{boxShadow:'0 8px 32px 0 rgba(99,102,241,0.22)'}}
+              style={{boxShadow: '0 8px 32px 0 rgba(99,102,241,0.22)'}}
             />
           </div>
         )}
@@ -77,7 +80,7 @@ export default function PortfolioClient({ personalInfo = {}, projects = [], skil
           {personalInfo.summary || 'A short summary about yourself goes here.'}
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6 animate-fade-in delay-300">
-          <a href="#contact" className="inline-block px-7 py-3 rounded-full bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-400 text-white font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition-transform duration-300">
+          <a href="#contact-alt" className="inline-block px-7 py-3 rounded-full bg-gradient-to-r from-purple-400 via-indigo-400 to-pink-400 text-white font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition-transform duration-300">
             Get In Touch
           </a>
           {personalInfo.resume && (
@@ -191,7 +194,7 @@ export default function PortfolioClient({ personalInfo = {}, projects = [], skil
                   <p className="text-gray-700">{edu.degree} {edu.field && <span>- {edu.field}</span>}</p>
                   <p className="text-gray-500 text-sm">{edu.startYear} - {edu.endYear || 'Present'}</p>
                 </div>
-                {edu.logo && <img src={edu.logo} alt="logo" className="w-16 h-16 object-contain rounded-xl" />}
+                {edu.logo && <Image src={edu.logo} alt="logo" width={64} height={64} className="w-16 h-16 object-contain rounded-xl" />}
               </div>
             )) : (
               <div className="text-gray-500">No education history added yet.</div>
@@ -199,9 +202,9 @@ export default function PortfolioClient({ personalInfo = {}, projects = [], skil
           </div>
         </section>
         {/* --- Contact Section --- */}
-        <section id="contact" className="mb-16">
+        <section id="contact-alt" className="mb-16">
           <h2 className="text-4xl font-extrabold text-center mb-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-transparent bg-clip-text">Get In Touch</h2>
-          <p className="text-center text-gray-700 mb-8">Have a project in mind or want to discuss potential opportunities? I'd love to hear from you.</p>
+          <p className="text-center text-gray-700 mb-8">Have a project in mind or want to discuss potential opportunities? I&apos;d love to hear from you.</p>
           <div className="flex flex-col md:flex-row gap-8 items-start justify-center">
             {/* Contact Info Card */}
             <div className="flex-1 bg-white/90 rounded-2xl shadow p-6 mb-6 md:mb-0 border border-indigo-50 min-w-[270px]">
@@ -243,28 +246,6 @@ export default function PortfolioClient({ personalInfo = {}, projects = [], skil
           </div>
         </section>
         {/* Removed duplicate Hero/About Section - now only the top hero section remains */}
-{/* --- Contact Section --- */}
-        <section id="contact" className="mb-16">
-          <h2 className="text-4xl font-extrabold text-center mb-2 bg-gradient-to-r from-purple-500 to-indigo-500 text-transparent bg-clip-text">Contact</h2>
-          <p className="text-center text-gray-700 mb-8">Want to work together or have a question? Send me a message!</p>
-          <div className="flex flex-col md:flex-row gap-8 justify-center items-start">
-            {/* Contact Info */}
-            <div className="flex-1 bg-white/80 rounded-2xl shadow-lg p-6 mb-8 md:mb-0">
-              <ContactInfoRow 
-                location={personalInfo.location}
-                email={personalInfo.email}
-                phone={personalInfo.phone}
-              />
-              <div className="mt-6">
-                {personalInfo.email && (
-                  <a href={`mailto:${personalInfo.email}`} className="inline-block px-6 py-2 rounded-full bg-gradient-to-r from-purple-400 to-indigo-400 text-white font-semibold shadow hover:scale-105 transition-transform">Email Me</a>
-                )}
-              </div>
-            </div>
-            {/* Contact Form */}
-            <ContactForm ownerId={ownerId} />
-          </div>
-        </section>
         {/* --- Footer --- */}
         <footer className="flex justify-center mt-10">
           <div className="bg-white/80 backdrop-blur-2xl rounded-3xl shadow-2xl p-8 w-full max-w-4xl">

@@ -3,57 +3,78 @@ import Navbar from '@/components/Navbar';
 import FormBuilderClient from '../form/FormBuilderClient';
 import { usePortfolioStore } from '@/store/portfolioStore';
 import { useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { Suspense } from "react";
+import { useSearchParams } from 'next/navigation';
 import PreviewBackground from '@/components/PreviewBackground';
 import PortfolioCard from '@/components/PortfolioCard';
 import { TEMPLATES } from '@/components/templates';
 
 import { useEffect } from 'react';
 
-export default function LivePreviewPage() {
+const LivePreviewPage = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <InnerLivePreviewPage />
+  </Suspense>
+);
+
+const InnerLivePreviewPage = () => {
   const pdfRef = useRef(null);
-  const router = useRouter();
-  const portfolio = usePortfolioStore((state) => state.portfolio);
-  const setPortfolio = usePortfolioStore((state) => state.setPortfolio);
-  const updatePortfolio = usePortfolioStore((state) => state.updatePortfolio);
   const searchParams = useSearchParams();
+  const { portfolio, update, resetPortfolio, hydrate, hydrated } = usePortfolioStore();
 
-  // On mount: load from localStorage, then sync template param if present
+  // 1. Hydrate store on mount
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('portfolioForm');
-      if (saved) {
-        setPortfolio(JSON.parse(saved));
-      }
-    }
-  }, [setPortfolio]);
+    hydrate();
+  }, [hydrate]);
 
+  const urlTemplate = searchParams.get('template');
+
+  // 2. Sync URL template to store AFTER hydration
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const urlTemplate = searchParams.get('template');
-      if (urlTemplate && urlTemplate !== portfolio.template) {
-        updatePortfolio('template', urlTemplate);
-      }
+    if (hydrated && urlTemplate && Object.keys(TEMPLATES).includes(urlTemplate) && urlTemplate !== portfolio.template) {
+      update(p => ({ ...p, template: urlTemplate }));
     }
-  }, [searchParams, portfolio?.template, updatePortfolio]);
+  }, [urlTemplate, portfolio.template, update, hydrated]);
 
-  // Pick template config
-  const templateKey = portfolio?.template || 'card';
-  const Template = TEMPLATES[templateKey] || TEMPLATES.card;
+  // 3. Render a loading state until hydrated to prevent mismatch
+  if (!hydrated) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  // Determine the final template key to use for rendering.
+  const templateKey = (urlTemplate && Object.keys(TEMPLATES).includes(urlTemplate)) ? urlTemplate : portfolio.template;
+  const Template = TEMPLATES[templateKey]?.card || null;
+  const TemplateBackground = TEMPLATES[templateKey]?.background || null;
+
+  const handleFormUpdate = (path, value) => {
+    update(p => {
+      const newPortfolio = { ...p };
+      let current = newPortfolio;
+      for (let i = 0; i < path.length - 1; i++) {
+        current = current[path[i]];
+      }
+      current[path[path.length - 1]] = value;
+      return newPortfolio;
+    });
+  };
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       <Navbar />
-      {Template.background}
+      {TemplateBackground && <TemplateBackground />}
       <main className="flex-1 flex flex-col md:flex-row gap-0 md:gap-8 p-4 md:p-12 items-stretch justify-center relative z-10">
-        {/* Form Side */}
         <div className="w-full md:w-1/2 bg-white/90 rounded-2xl shadow-2xl border border-blue-100 backdrop-blur-md p-4 md:p-8 mb-8 md:mb-0 overflow-auto">
-          <FormBuilderClient />
+          <FormBuilderClient
+            portfolio={portfolio}
+            updatePortfolio={handleFormUpdate}
+            resetPortfolio={resetPortfolio}
+            selectedTemplate={templateKey}
+          />
         </div>
-        {/* Preview Side */}
         <div className="w-full md:w-1/2 flex flex-col items-center justify-center">
           <div className="w-full max-w-2xl mx-auto">
-            {Template.card(portfolio)}
+            {Template && <Template key={portfolio.template} portfolio={portfolio} />}
             <div className="flex flex-wrap gap-4 justify-center mt-8">
               <button ref={pdfRef} className="px-7 py-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 border-2 border-white">Export as PDF</button>
               <button className="px-7 py-3 rounded-xl bg-gradient-to-r from-pink-400 via-indigo-400 to-purple-400 text-white font-bold shadow-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 border-2 border-white">Share Link</button>
@@ -63,4 +84,6 @@ export default function LivePreviewPage() {
       </main>
     </div>
   );
-}
+};
+
+export default LivePreviewPage;

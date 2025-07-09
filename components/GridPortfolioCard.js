@@ -1,9 +1,9 @@
 // components/GridPortfolioCard.js
 import React from 'react';
+import Image from 'next/image';
 
 export default function GridPortfolioCard({ portfolio }) {
-  const data = portfolio;
-  if (!data) return null;
+  if (!portfolio) return null;
   return (
     <div className="relative mx-auto rounded-3xl bg-white/90 border border-blue-200 shadow-2xl p-10 md:p-12 flex flex-col items-center max-w-5xl overflow-hidden">
       {/* Animated background */}
@@ -13,13 +13,13 @@ export default function GridPortfolioCard({ portfolio }) {
       <div className="relative z-10 flex flex-col md:flex-row w-full gap-8">
         {/* Left: Personal Info & Skills */}
         <div className="flex flex-col items-center md:items-start md:w-1/3 w-full mb-8 md:mb-0 sticky top-8 self-start bg-white/80 rounded-2xl p-6 shadow-md">
-          <img src={data.personalInfo?.photo || ''} alt={data.personalInfo?.name || ''} className="w-28 h-28 rounded-full border-4 border-blue-400 shadow-lg mb-4 object-cover" />
-          <h2 className="text-3xl font-extrabold text-blue-900 mb-1 text-center md:text-left">{data.personalInfo?.name || ''}</h2>
-          <h3 className="text-xl font-semibold text-blue-500 mb-2 text-center md:text-left">{data.personalInfo?.role || ''}</h3>
-          <p className="text-gray-600 mb-4 text-center md:text-left">{data.personalInfo?.summary || ''}</p>
+          <Image src={portfolio.personalInfo?.photo || ''} alt={portfolio.personalInfo?.name || ''} width={112} height={112} className="w-28 h-28 rounded-full border-4 border-blue-400 shadow-lg mb-4 object-cover" />
+          <h2 className="text-3xl font-extrabold text-blue-900 mb-1 text-center md:text-left">{portfolio.personalInfo?.name || ''}</h2>
+          <h3 className="text-xl font-semibold text-blue-500 mb-2 text-center md:text-left">{portfolio.personalInfo?.role || ''}</h3>
+          <p className="text-gray-600 mb-4 text-center md:text-left">{portfolio.personalInfo?.summary || ''}</p>
           <h4 className="text-lg font-bold text-blue-700 mt-2 mb-1">Skills</h4>
           <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-2">
-            {Array.isArray(data.skills) && data.skills.filter(Boolean).length > 0 ? data.skills.filter(Boolean).map((s, i) => (
+            {Array.isArray(portfolio.skills) && portfolio.skills.filter(Boolean).length > 0 ? portfolio.skills.filter(Boolean).map((s, i) => (
               <span key={i} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium shadow">{s}</span>
             )) : <div className="text-gray-400 italic">No skills</div>}
           </div>
@@ -29,9 +29,9 @@ export default function GridPortfolioCard({ portfolio }) {
           {/* Projects */}
           <div>
             <h4 className="text-2xl font-bold text-blue-700 mb-3">Projects</h4>
-            {Array.isArray(data.projects) && data.projects.filter(p => p.title).length > 0 ? (
+            {Array.isArray(portfolio.projects) && portfolio.projects.filter(p => p.title).length > 0 ? (
               <ul className="space-y-3">
-                {data.projects.filter(p => p.title).map((p, i) => (
+                {portfolio.projects.filter(p => p.title).map((p, i) => (
                   <li key={i} className="bg-blue-50 rounded-xl p-4 shadow flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                     <div>
                       <div className="font-semibold text-lg">{p.title}</div>
@@ -47,9 +47,9 @@ export default function GridPortfolioCard({ portfolio }) {
           {/* Education */}
           <div>
             <h4 className="text-2xl font-bold text-blue-700 mb-3">Education</h4>
-            {Array.isArray(data.education) && data.education.filter(e => e.degree).length > 0 ? (
+            {Array.isArray(portfolio.education) && portfolio.education.filter(e => e.degree).length > 0 ? (
               <ul className="space-y-3">
-                {data.education.filter(e => e.degree).map((e, i) => (
+                {portfolio.education.filter(e => e.degree).map((e, i) => (
                   <li key={i} className="bg-blue-50 rounded-xl p-4 shadow">
                     <div className="font-semibold">{e.degree}</div>
                     <div className="text-sm text-gray-600">{e.school}</div>
@@ -62,13 +62,13 @@ export default function GridPortfolioCard({ portfolio }) {
           {/* Experience */}
           <div>
             <h4 className="text-2xl font-bold text-blue-700 mb-3">Experience</h4>
-            {Array.isArray(data.experience) && data.experience.filter(e => e.title).length > 0 ? (
+            {Array.isArray(portfolio.experience) && portfolio.experience.filter(e => e.role).length > 0 ? (
               <ul className="space-y-3">
-                {data.experience.filter(e => e.title).map((e, i) => (
+                {portfolio.experience.filter(e => e.role).map((e, i) => (
                   <li key={i} className="bg-blue-50 rounded-xl p-4 shadow">
-                    <div className="font-semibold">{e.title}</div>
+                    <div className="font-semibold">{e.role}</div>
                     <div className="text-sm text-gray-600">{e.company}</div>
-                    {e.years && <div className="text-xs text-blue-500 mt-1">Years: {e.years}</div>}
+                    {e.duration && <div className="text-xs text-blue-500 mt-1">Duration: {e.duration}</div>}
                     {e.description && <div className="text-xs text-gray-500 mt-1">{e.description}</div>}
                   </li>
                 ))}

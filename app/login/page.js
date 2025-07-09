@@ -81,6 +81,11 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Dynamic background logic
   const [bgIndex, setBgIndex] = useState(0);
@@ -96,7 +101,7 @@ export default function LoginPage() {
       setBgIndex((prev) => (prev + 1) % bgImages.length);
     }, 8000); // Change every 8 seconds
     return () => clearInterval(interval);
-  }, []);
+  }, [bgImages.length]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -152,7 +157,7 @@ export default function LoginPage() {
         mixBlendMode: 'multiply',
       }} />
       {/* Animated particles overlay */}
-      <ParticlesOverlay />
+      {isClient && <ParticlesOverlay />}
       <style jsx global>{`
         @keyframes bgMove {
           0% { background-position: 50% 50%; }

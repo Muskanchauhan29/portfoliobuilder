@@ -1,4 +1,5 @@
 import React from "react";
+import Image from 'next/image';
 
 export default function PortfolioTemplateGrid({ personalInfo, projects, skills, education, experience }) {
   return (
@@ -6,7 +7,7 @@ export default function PortfolioTemplateGrid({ personalInfo, projects, skills, 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="md:col-span-1 flex flex-col items-center">
           {personalInfo.photo && (
-            <img src={personalInfo.photo} alt="Profile" className="w-28 h-28 rounded-full mb-4 object-cover shadow" />
+            <Image src={personalInfo.photo} alt="Profile" width={112} height={112} className="w-28 h-28 rounded-full mb-4 object-cover shadow" />
           )}
           <h2 className="text-xl font-bold text-blue-700 mb-1">{personalInfo.name || 'Your Name'}</h2>
           <div className="text-blue-500 mb-2">{personalInfo.role}</div>

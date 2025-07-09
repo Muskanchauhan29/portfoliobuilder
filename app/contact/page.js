@@ -17,7 +17,7 @@ const ContactPage = () => {
             Get in Touch
           </h1>
           <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto">
-            We'd love to hear from you! Whether you have a question about features, templates, support, or anything else, our team is ready to answer all your questions.
+            We&apos;d love to hear from you! Whether you have a question about features, templates, support, or anything else, our team is ready to answer all your questions.
           </p>
         </motion.div>
 

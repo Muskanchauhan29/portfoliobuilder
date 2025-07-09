@@ -18,27 +18,54 @@ const defaultPortfolio = {
   experience: [{}]
 };
 
-export const usePortfolioStore = create((set, get) => ({
-  portfolio: defaultPortfolio,
-  setPortfolio: (data) => {
-    set({ portfolio: data });
+// Helper to save state to localStorage
+const saveState = (portfolio) => {
+  try {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('portfolioForm', JSON.stringify(data));
+      const serializedState = JSON.stringify(portfolio);
+      localStorage.setItem('portfolioForm', serializedState);
+    }
+  } catch (err) {
+    console.error("Could not save state to localStorage", err);
+  }
+};
+
+export const usePortfolioStore = create((set) => ({
+  portfolio: defaultPortfolio, // Start with default state to prevent hydration mismatch
+  hydrated: false, // Flag to check if store has been hydrated
+
+  // Action to hydrate the store from localStorage on the client
+  hydrate: () => {
+    try {
+      if (typeof window !== 'undefined') {
+        const serializedState = localStorage.getItem('portfolioForm');
+        if (serializedState !== null) {
+          set({ portfolio: JSON.parse(serializedState), hydrated: true });
+        } else {
+          set({ hydrated: true });
+        }
+      }
+    } catch (e) {
+      console.error("Could not hydrate state from localStorage", e);
+      set({ hydrated: true });
     }
   },
-  updatePortfolio: (section, value) => {
-    set((state) => {
-      const updated = { ...state.portfolio, [section]: value };
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('portfolioForm', JSON.stringify(updated));
-      }
-      return { portfolio: updated };
-    });
-  },
-  resetPortfolio: () => {
-    set({ portfolio: defaultPortfolio });
+
+  update: (updater) => set((state) => {
+    const newPortfolio = updater(state.portfolio);
+    saveState(newPortfolio);
+    return { portfolio: newPortfolio };
+  }),
+  
+  setPortfolio: (newPortfolio) => set(() => {
+    saveState(newPortfolio);
+    return { portfolio: newPortfolio };
+  }),
+  
+  resetPortfolio: () => set(() => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('portfolioForm');
     }
-  }
+    return { portfolio: defaultPortfolio };
+  }),
 }));
