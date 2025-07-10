@@ -18,6 +18,7 @@ export async function POST(req) {
     await db.collection('users').insertOne(user);
     return NextResponse.json({ message: 'Registration successful.' }, { status: 201 });
   } catch (e) {
+        console.error(e);
     return NextResponse.json({ error: 'Server error.' }, { status: 500 });
   }
 }
