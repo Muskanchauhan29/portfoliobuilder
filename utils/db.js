@@ -25,8 +25,12 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 export async function connectToDatabase() {
+    if (!process.env.MONGODB_DB) {
+        throw new Error('Please define the MONGODB_DB environment variable inside .env.local');
+    }
+
     const client = await clientPromise;
-    const db = client.db();
+    const db = client.db(process.env.MONGODB_DB);
     return { db };
 }
 
